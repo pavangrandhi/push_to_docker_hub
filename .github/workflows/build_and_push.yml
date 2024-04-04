@@ -1,0 +1,32 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3 
+    - name: Build Docker Image
+      id: docker_build
+      run: |
+        docker build -t pavangrandhi25/my_redis_git .
+          
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        
+    - name: Push Docker Image
+      run: |
+        docker tag pavangrandhi25/my_redis_git:latest pavangrandhi25/my_redis_git:${{ github.sha }}
+        docker push pavangrandhi25/my_redis_git:${{ github.sha }}
+      
+    - name: Image Digest
+      run: echo ${{ steps.docker_build.outputs.digest }}
