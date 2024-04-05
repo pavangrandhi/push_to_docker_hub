@@ -40,6 +40,7 @@ jobs:
         echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
 
     - name: Increment version tag
+      id: increment_tag
       run: |
         NEXT_TAG="${{ env.latest_tag }}"
         echo "NEXT_TAG before: $NEXT_TAG"
@@ -51,7 +52,7 @@ jobs:
           NEXT_TAG=$(semver bump patch $NEXT_TAG)
         fi
         echo "NEXT_TAG after: $NEXT_TAG"
-        echo "next_tag=${NEXT_TAG}" >> $GITHUB_OUTPUT
+        echo "::set-output name=next_tag::$NEXT_TAG"
 
     - name: Push Docker Image
       run: |
