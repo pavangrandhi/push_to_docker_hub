@@ -33,11 +33,14 @@ jobs:
       run: |
         npm install -g semver
     
+    - name: Install jq
+      run: sudo apt-get install -y jq
+    
     - name: Get latest version tag
       id: get_latest_tag
       run: |
         LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/pavangrandhi25/my_redis_git/tags/?page_size=1" | jq -r '.results[0].name // "v0"')
-        echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+        echo "latest_tag=${LATEST_TAG}" >> $GITHUB_ENV
 
     - name: Increment version tag
       id: increment_tag
