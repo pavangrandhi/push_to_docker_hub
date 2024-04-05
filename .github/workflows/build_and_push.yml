@@ -42,6 +42,7 @@ jobs:
     - name: Increment version tag
       run: |
         NEXT_TAG="${{ env.latest_tag }}"
+        echo "NEXT_TAG before: $NEXT_TAG"
         if [ -z "$NEXT_TAG" ]; then
           NEXT_TAG="v1"
         elif [ "$NEXT_TAG" = "v0" ]; then
@@ -49,6 +50,7 @@ jobs:
         else
           NEXT_TAG=$(semver bump patch $NEXT_TAG)
         fi
+        echo "NEXT_TAG after: $NEXT_TAG"
         echo "next_tag=${NEXT_TAG}" >> $GITHUB_OUTPUT
 
     - name: Push Docker Image
