@@ -24,11 +24,15 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 'lts/*'
+
     - name: Install semver
       run: |
-        sudo apt-get update
-        sudo apt-get install -y semver
-
+        npm install -g semver
+    
     - name: Get latest version tag
       id: get_latest_tag
       run: |
