@@ -41,7 +41,7 @@ jobs:
 
     - name: Increment version tag
       run: |
-        NEXT_TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
+        NEXT_TAG="${{ env.latest_tag }}"
         if [ "$NEXT_TAG" = "v0" ]; then
           NEXT_TAG="v1"
         else
