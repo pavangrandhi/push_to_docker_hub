@@ -46,8 +46,8 @@ app.get('/', (req, res) => {
 
 });
 
-app.listen(7777, () => {
-  console.log('visitorsapp started on port 9999');
+app.listen(6666, () => {
+  console.log('visitorsapp started on port 6666');
 });
 
 // Log client status after some operations
