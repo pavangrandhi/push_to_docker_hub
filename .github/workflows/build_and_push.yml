@@ -25,40 +25,30 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-    - name: Install Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 'lts/*'
-
-    - name: Install semver
-      run: npm install -g semver || echo "Semver already installed"
+    - name: Install jq
+      run: sudo apt-get install -y jq
 
     - name: Get latest version tag
       id: get_latest_tag
       run: |
-        LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/pavangrandhi25/my_redis_git/tags/?page_size=1" | jq -r '.results[0].name // "v0"')
+        LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/pavangrandhi25/my_redis_git/tags/?page_size=1" | jq -r '.results[0].name // empty')
         echo "latest_tag=${LATEST_TAG}" >> $GITHUB_ENV
 
     - name: Increment version tag
       id: increment_tag
       run: |
-        NEXT_TAG="${{ env.latest_tag }}"
-        echo "NEXT_TAG before: $NEXT_TAG"
-        if [ -z "$NEXT_TAG" ]; then
+        if [ -z "${{ env.latest_tag }}" ]; then
           NEXT_TAG="v1"
         else
-          if ! command -v semver &> /dev/null; then
-            echo "Semver not installed, unable to increment tag"
-            NEXT_TAG="v1" # Set default tag if semver is not available
-          else
-            NEXT_TAG=$(semver bump patch $NEXT_TAG)
-          fi
+          # Extract the version number from the latest tag and increment it
+          VERSION_NUMBER=$(echo "${{ env.latest_tag }}" | sed 's/v//')
+          NEXT_VERSION=$((VERSION_NUMBER + 1))
+          NEXT_TAG="v${NEXT_VERSION}"
         fi
-        echo "NEXT_TAG after: $NEXT_TAG"
+        echo "NEXT_TAG: $NEXT_TAG"
         echo "::set-output name=next_tag::$NEXT_TAG"
 
     - name: Push Docker Image
-      if: steps.increment_tag.outputs.next_tag != 'v1' # Only push if tag was successfully incremented
       run: |
         docker tag pavangrandhi25/my_redis_git:latest pavangrandhi25/my_redis_git:${{ steps.increment_tag.outputs.next_tag }}
         docker push pavangrandhi25/my_redis_git:${{ steps.increment_tag.outputs.next_tag }}
