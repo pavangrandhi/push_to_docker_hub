@@ -36,11 +36,10 @@ jobs:
     - name: Get latest version tag
       id: get_latest_tag
       run: |
-        LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/pavangrandhi25/my_redis_git/tags/?page_size=1" | jq -r '.results[0].name // "v0"')
-        echo "::set-output name=latest_tag::${LATEST_TAG}"
+        LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/***/my_redis_git/tags/?page_size=1" | jq -r '.results[0].name // "v0"')
+        echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
 
     - name: Increment version tag
-      id: increment_tag
       run: |
         NEXT_TAG=${{ steps.get_latest_tag.outputs.latest_tag }}
         if [ "$NEXT_TAG" = "v0" ]; then
@@ -48,12 +47,12 @@ jobs:
         else
           NEXT_TAG=$(semver bump patch $NEXT_TAG)
         fi
-          echo "::set-output name=next_tag::${NEXT_TAG}"
+        echo "next_tag=${NEXT_TAG}" >> $GITHUB_OUTPUT
 
     - name: Push Docker Image
       run: |
         docker tag pavangrandhi25/my_redis_git:latest pavangrandhi25/my_redis_git:${{ steps.increment_tag.outputs.next_tag }}
         docker push pavangrandhi25/my_redis_git:${{ steps.increment_tag.outputs.next_tag }}
-
+    
     - name: Image Digest
       run: echo ${{ steps.docker_build.outputs.digest }}
