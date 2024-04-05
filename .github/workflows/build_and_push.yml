@@ -42,7 +42,9 @@ jobs:
     - name: Increment version tag
       run: |
         NEXT_TAG="${{ env.latest_tag }}"
-        if [ "$NEXT_TAG" = "v0" ]; then
+        if [ -z "$NEXT_TAG" ]; then
+          NEXT_TAG="v1"
+        elif [ "$NEXT_TAG" = "v0" ]; then
           NEXT_TAG="v1"
         else
           NEXT_TAG=$(semver bump patch $NEXT_TAG)
